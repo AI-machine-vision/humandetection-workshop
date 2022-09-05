@@ -1,0 +1,6 @@
+EfficientNet-B0 
+https://github.com/500swapnil/Keras_Efficientnet_SSD/releases/download/v1.0/efficientnetb0_SSD.h5
+
+EfficientNet-B3 https://github.com/500swapnil/Keras_Efficientnet_SSD/releases/download/v1.0/efficientnetb3_SSD.h5
+
+EfficientNet-B5 https://github.com/500swapnil/Keras_Efficientnet_SSD/releases/download/v1.0/efficientnetb5_SSD.h5
