@@ -1,7 +1,14 @@
 # reinventing-workshop1
-Source code for machine vision unit, Reinventing project, KMUTNB
+Source code for machine vision unit, Reinventing University project, KMUTNB
 
-tutorial notebook
+Preparation for workshop
+```bash
+git clone https://github.com/AI-machine-vision/humandetection-workshop.git
+cd humandetection-workshop
+bash setup.sh
+```
+
+Tutorial notebooks
 1.  regression 
 2.  classificaion 
 3.  opencv (image processing)
