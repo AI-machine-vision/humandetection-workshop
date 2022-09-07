@@ -1,4 +1,4 @@
-# reinventing-workshop1
+# Human Detection Workshop
 Source code for machine vision unit, Reinventing University project, KMUTNB
 
 Preparation for workshop
