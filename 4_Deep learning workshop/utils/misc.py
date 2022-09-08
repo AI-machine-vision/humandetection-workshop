@@ -127,10 +127,12 @@ def draw_bboxes(bboxes, ax, labels=None, IMAGE_SIZE=[300, 300]):
         bboxes[:, [1,3]] = bboxes[:, [1,3]]*IMAGE_SIZE[0]
     for i, bbox in enumerate(bboxes):
         ind = int(labels[i] - 1)
+        ind = 1 if CLASSES[int(labels[i] - 1)] == 'person' else 0
         rect = patches.Rectangle((bbox[0], bbox[1]), bbox[2]-bbox[0], bbox[3]-bbox[1], linewidth=1, edgecolor=COLORS[ind], facecolor='none')
         # ax.add_patch(rect)
         ax.add_artist(rect)
         # print(int(bbox[-1]))
         if labels is not None:
-            ax.text(bbox[0]+0.5,bbox[1]+0.5, CLASSES[int(labels[i] - 1)],  fontsize=20,
+            label = 'Human' if CLASSES[int(labels[i] - 1)] == 'person' else 'Other'
+            ax.text(bbox[0]+0.5,bbox[1]+0.5, label,  fontsize=20,
                 horizontalalignment='left', verticalalignment='top', bbox=dict(facecolor=COLORS[ind], alpha=0.4))
