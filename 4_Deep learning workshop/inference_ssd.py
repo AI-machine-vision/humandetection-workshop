@@ -35,7 +35,7 @@ def draw_bboxes(bboxes, frame, labels=None, fill=False, IMAGE_SIZE=[300, 300]):
     alpha = 0.1
     for i, bbox in enumerate(bboxes):
         ind = int(labels[i] - 1)
-        ind = 1 if CLASSES[int(labels[i] - 1)] == 'person' else 0
+        ind = 14 if CLASSES[int(labels[i] - 1)] == 'person' else 12
         cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), 
                              (int(bbox[2]), int(bbox[3])), COLORS[ind], 2)
         if fill:
