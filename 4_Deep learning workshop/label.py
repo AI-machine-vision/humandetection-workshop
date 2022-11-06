@@ -7,6 +7,7 @@ from matplotlib.image import imread
 import os
 from utils.preprocessing import prepare_for_prediction
 import argparse
+import time
 
 parser = argparse.ArgumentParser(
     description='Single Shot MultiBox Detector Training With Pytorch')
@@ -47,9 +48,9 @@ def write_labels(bboxes, labels=None, IMAGE_SIZE=[300, 300], name=''):
         for i, bbox in enumerate(bboxes):
             # bbox[0], bbox[1]), bbox[2]-bbox[0], bbox[3]-bbox[1]
             if labels is not None:
-                label = 'Human' if CLASSES[int(labels[i] - 1)] == 'person' else 'Other'
-                txt.write('{} {} {} {} {}'.format(int(labels[i] - 1), 
-                                                  bbox[0], bbox[1], bbox[2], bbox[3]))
+                if CLASSES[int(labels[i] - 1)] == 'person':
+                    txt.write('{} {} {} {} {}'.format(int(labels[i] - 1), 
+                                                    bbox[0], bbox[1], bbox[2], bbox[3]))
 
 
 
@@ -58,14 +59,7 @@ if __name__ == '__main__':
     BATCH_SIZE = 16
     MODEL_NAME = "B0"
     checkpoint_filepath = args.checkpoint
-    INPUT_DIR = '../raw data/00_test/images'
-    OUTPUT_DIR = '../raw data/00_test/images2label'
-    OUTPUT_DIR_LABEL = '../raw data/00_test/labels'
-    if not os.path.exists(OUTPUT_DIR):
-        os.mkdir(OUTPUT_DIR)
-    if not os.path.exists(OUTPUT_DIR_LABEL):
-        os.mkdir(OUTPUT_DIR_LABEL)
-
+    
     iou_threshold = 0.5
     center_variance = 0.1
     size_variance = 0.2
@@ -93,29 +87,43 @@ if __name__ == '__main__':
     else:
         print("Training from with only base model pretrained on imagenet")
 
-    dataset = tf.data.Dataset.list_files(INPUT_DIR + '/*', shuffle=False)
-    filenames = list(dataset.as_numpy_iterator())
-    dataset = dataset.map(prepare_for_prediction)
-    dataset = dataset.batch(BATCH_SIZE)
+    for dir_name in os.listdir('../raw data/'):
+        if dir_name in ['01_champ', '02_art', '03_ter', '04_tar', '05_plug', '06_chain']:
+            continue
+        print(dir_name)
+        INPUT_DIR = '../raw data/{}/images'.format(dir_name)
+        OUTPUT_DIR = '../raw data/{}/images2label'.format(dir_name)
+        OUTPUT_DIR_LABEL = '../raw data/{}/labels'.format(dir_name)
+        if not os.path.exists(OUTPUT_DIR):
+            os.mkdir(OUTPUT_DIR)
+        if not os.path.exists(OUTPUT_DIR_LABEL):
+            os.mkdir(OUTPUT_DIR_LABEL)
 
-    pred = model.predict(dataset, verbose=1)
-    predictions = post_process(pred, target_transform, confidence_threshold=0.4)
+        dataset = tf.data.Dataset.list_files(INPUT_DIR + '/*', shuffle=False)
+        filenames = list(dataset.as_numpy_iterator())
+        dataset = dataset.map(prepare_for_prediction)
+        dataset = dataset.batch(BATCH_SIZE)
 
-    # dataset = dataset.unbatch()
-    print("Prediction Complete")
-    for i, path in enumerate(filenames):
-        path_string = path.decode("utf-8")
-        im = imread(path_string)
-        # filename = path_string.split('/')[-1]
-        filename = path_string.split('\\')[-1]
-        fig, ax = plt.subplots(1, figsize=(15, 15))
-        ax.imshow(im)
-        pred_boxes, pred_scores, pred_labels = predictions[i]
-        if pred_boxes.size > 0:
-            draw_bboxes(pred_boxes, ax , labels=pred_labels, IMAGE_SIZE=im.shape[:2])
-            write_labels(pred_boxes, labels=pred_labels, IMAGE_SIZE=im.shape[:2],
-                         name = os.path.join(OUTPUT_DIR_LABEL, filename.replace('jpg', 'txt')))
-        plt.axis('off')
-        plt.savefig(os.path.join(OUTPUT_DIR, filename.replace('jpg', 'png')), bbox_inches='tight', pad_inches=0)
-        
-    print("Output is saved in", OUTPUT_DIR)
+        pred = model.predict(dataset, verbose=1)
+        predictions = post_process(pred, target_transform, confidence_threshold=0.4)
+
+        # dataset = dataset.unbatch()
+        print("Prediction Complete")
+        for i, path in enumerate(filenames):
+            path_string = path.decode("utf-8")
+            im = imread(path_string)
+            # filename = path_string.split('/')[-1]
+            filename = path_string.split('\\')[-1]
+            fig, ax = plt.subplots(1, figsize=(15, 15))
+            ax.imshow(im)
+            pred_boxes, pred_scores, pred_labels = predictions[i]
+            if pred_boxes.size > 0:
+                draw_bboxes(pred_boxes, ax , labels=pred_labels, IMAGE_SIZE=im.shape[:2])
+                write_labels(pred_boxes, labels=pred_labels, IMAGE_SIZE=im.shape[:2],
+                            name = os.path.join(OUTPUT_DIR_LABEL, filename.replace('jpg', 'txt')))
+            plt.axis('off')
+            plt.savefig(os.path.join(OUTPUT_DIR, filename.replace('jpg', 'png')), bbox_inches='tight', pad_inches=0)
+            
+        print("Output is saved in", OUTPUT_DIR)
+        print('Sleep 1 min')
+        time.sleep(60)
